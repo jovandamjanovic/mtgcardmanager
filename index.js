@@ -18,28 +18,28 @@ const getCardByName = cardName => {
 }
 const getCardDetails = card => {
     console.log(card.name + ' loaded!');
-    return {name: card.name, imageUrl: card.image_uris.png};
+    return { name: card.name, imageUrl: card.image_uris.png };
 };
-const getCardImage = card => cardService.get(card.imageUrl, {responseType: 'arraybuffer'}).then(response => {
+const getCardImage = card => cardService.get(card.imageUrl, { responseType: 'arraybuffer' }).then(response => {
     console.log(card.name + ' image loaded!');
     return response.data;
 });
-const appendImageToCard = card => getCardImage(card).then(image => ({name: card.name, imageUrl: card.imageUrl, image: image}));
+const appendImageToCard = card => getCardImage(card).then(image => ({ name: card.name, imageUrl: card.imageUrl, image: image }));
 
 axios.all(cards.map(card => getCardByName(card)
-                                    .then(getCardDetails)
-                                    .then(appendImageToCard)))
-.then(cardList => {
-    zip = new JSZip();
-    cardList.map(card => {
-        zip.file(card.name + '.png', card.image);
-    });
+    .then(getCardDetails)
+    .then(appendImageToCard)))
+    .then(cardList => {
+        zip = new JSZip();
+        cardList.map(card => {
+            zip.file(card.name + '.png', card.image);
+        });
 
-    zip
-    .generateNodeStream({type:'nodebuffer',streamFiles:true})
-    .pipe(fs.createWriteStream('cards.zip'))
-    .on('finish', function () {
-        console.log("cards.zip written.");
-    });
-})
-.catch(err => console.log(err));
+        zip
+            .generateNodeStream({ type: 'nodebuffer', streamFiles: true })
+            .pipe(fs.createWriteStream('cards.zip'))
+            .on('finish', function () {
+                console.log("cards.zip written.");
+            });
+    })
+    .catch(err => console.log(err));
